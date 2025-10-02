@@ -6,24 +6,35 @@ import StarRating from "./UIComponents/StarRating";
 import TargetSelect from "./UIComponents/TargetSelect";
 import RatingTable from "./UIComponents/RatingTable";
 
-const VisualQuestions = {
-  q1: "Generalización del problema",
-  q2: "Probabilidad de Brandear (Crear Marca)",
-  q3: "Grado de satisfacción del problema",
-  q4: "Efecto Wow",
-  q5: "Existen productos relacionados",
-  q6: "Tamaño adecuado (Pequeño o Mediano)",
-  q7: "Facil uso e instalación",
-  q8: "Me apasiona el Nicho",
-  q9: "Grado de recurrencia (Se puede comprar más de una vez)",
-};
+const VisualQuestions = [
+  { id: "v1", text: "Generalización del problema" },
+  { id: "v2", text: "Probabilidad de Brandear (Crear Marca)" },
+  { id: "v3", text: "Grado de satisfacción del problema" },
+  { id: "v4", text: "Efecto Wow" },
+  { id: "v5", text: "Existen productos relacionados" },
+  { id: "v6", text: "Tamaño adecuado (Pequeño o Mediano)" },
+  { id: "v7", text: "Fácil uso e instalación" },
+  { id: "v8", text: "Me apasiona el Nicho" },
+];
 
-const TechnicalQuestions = {
-  m1: "Dificultad de encontrar en mercado físico",
-  m2: "Actualizado (En su última versión)",
-  m3: "Se vende en tiendas online de otros paises ",
-  m4: "Valoración de clientes",
-};
+const TechnicalQuestions = [
+  { id: "t1", text: "Dificultad de encontrar en mercado físico" },
+  { id: "t2", text: "Actualizado (En su última versión)" },
+  { id: "t3", text: "Se vende en tiendas online de otros países" },
+  { id: "t4", text: "Valoración de clientes (Amazon, Aliexpress ...)" },
+  { id: "t5", text: "Cambio alcanzable luego de usar el producto (No es cambio exagerado)" },
+  { id: "t6", text: "Competencia del mercado (1 mucha, 5 poca)" },
+];
+
+const StrategicQuestions = [
+  { id: "s1", text: "Se puede vender en bundle, es low ticket"},
+  { id: "s2", text: "Costo de adquisición bajo (5 - 20 mil COP)"},
+  { id: "s3", text: "Se puede aplicar un angulo de venta diferente a la competencia" },
+  { id: "s4", text: "Público amplio" },
+  { id: "s5", text: "Percepción de valor alta" },
+  { id: "s6", text: "Grado de recurrencia (Se puede comprar más de una vez)" },
+  { id: "s7", text: "Saturación (1 Mucha, 5 Poca)" },
+]
 
 const ProductForm = () => {
   const [formData, setFormData] = useState({
@@ -41,6 +52,10 @@ const ProductForm = () => {
         title: "Análisis Técnico",
         answers: {} as { [key: string]: { text: string; value: number } },
       },
+      strategic: {
+        title: "Análisis Estratégico",
+        answers: {} as { [key: string]: { text: string; value: number } },
+      }
     },
   });
 
@@ -58,7 +73,7 @@ const ProductForm = () => {
   };
 
   const handleRankingChange = (
-    section: "visual" | "technical",
+    section: "visual" | "technical" | "strategic",
     key: string,
     value: number,
     questionText: string
@@ -104,18 +119,21 @@ const ProductForm = () => {
           title={formData.sections.visual.title}
           questions={VisualQuestions}
           answers={formData.sections.visual.answers}
-          onChange={(key, value) =>
-            handleRankingChange("visual", key, value, VisualQuestions[key as keyof typeof VisualQuestions])
-          }
+          onChange={(key, value, text) => handleRankingChange("visual", key, value, text)}
         />
 
         <RatingTable
           title={formData.sections.technical.title}
           questions={TechnicalQuestions}
           answers={formData.sections.technical.answers}
-          onChange={(key, value) =>
-            handleRankingChange("technical", key, value, TechnicalQuestions[key as keyof typeof TechnicalQuestions])
-          }
+          onChange={(key, value, text) => handleRankingChange("technical", key, value, text)}
+        />
+
+        <RatingTable
+          title={formData.sections.strategic.title}
+          questions={StrategicQuestions}
+          answers={formData.sections.strategic.answers}
+          onChange={(key, value, text) => handleRankingChange("strategic", key, value, text)}
         />
       </div>
 

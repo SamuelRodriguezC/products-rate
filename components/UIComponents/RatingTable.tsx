@@ -3,9 +3,9 @@ import React from "react";
 
 interface RatingTableProps {
   title: string;
-  questions: { [key: string]: string };   // clave: id, valor: pregunta
-  answers: { [key: string]: { text: string; value: number } }; // clave: id, valor: objeto con texto y respuesta
-  onChange: (key: string, value: number) => void;
+  questions: { id: string; text: string }[];
+  answers: { [key: string]: { text: string; value: number } };
+  onChange: (key: string, value: number, questionText: string) => void;
 }
 
 const RatingTable: React.FC<RatingTableProps> = ({ title, questions, answers, onChange }) => {
@@ -25,20 +25,20 @@ const RatingTable: React.FC<RatingTableProps> = ({ title, questions, answers, on
           </tr>
         </thead>
         <tbody>
-          {Object.entries(questions).map(([key, q]) => (
-            <tr key={key} className="bg-gray-900 hover:bg-cyan-900 transition-colors">
+          {questions.map(({ id, text }) => (
+            <tr key={id} className="bg-gray-900 hover:bg-cyan-900 transition-colors">
               <td className="py-3 px-4 text-left text-gray-200 text-sm font-medium">
-                {q}
+                {text}
               </td>
               {[1, 2, 3, 4, 5].map((num) => (
                 <td key={num} className="py-3 px-4">
                   <div className="flex justify-center">
                     <input
                       type="radio"
-                      name={`${title}-${key}`}
+                      name={`${title}-${id}`}
                       value={num}
-                      checked={answers[key]?.value === num}
-                      onChange={() => onChange(key, num)}
+                      checked={answers[id]?.value === num}
+                      onChange={() => onChange(id, num, text)}
                       className="w-4 h-4 accent-cyan-400 cursor-pointer"
                     />
                   </div>
