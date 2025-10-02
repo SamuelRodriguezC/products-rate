@@ -1,22 +1,30 @@
 "use client";
 import React from "react";
 
+interface RatingTableProps {
+  title: string;
+}
+
 const questions = [
-  "¿Qué tan satisfecho estás con el servicio?",
-  "¿Qué tan fácil fue el proceso?",
-  "¿Recomendarías este producto?",
-  "¿El producto cumplió tus expectativas?",
-  "¿Qué tan clara fue la información proporcionada?",
-  "¿Qué tan rápido recibiste la atención?",
-  "¿Qué tan útil fue el soporte recibido?",
-  "¿Cómo calificas la relación calidad-precio?",
-  "¿Qué tan confiable consideras la empresa?",
-  "¿Volverías a comprar con nosotros?",
+  "Generalización del problema",
+  "Probabilidad de Brandear (Crear Marca)",
+  "Grado de satisfacción del problema",
+  "Efecto Wow",
+  "Existen productos relacionados",
+  "Tamaño adecuado (Pequeño o Mediano)",
+  "Facil uso e instalación ",
+  "Me apasiona el Nicho",
+  "Grado de recurrencia (Se puede comprar más de una vez)",
 ];
 
-const RatingTable: React.FC = () => {
+const RatingTable: React.FC<RatingTableProps> = ({ title }) => {
   return (
     <div className="overflow-x-auto p-4">
+      {/* Título pasado por prop */}
+      <h3 className="text-xl font-bold text-cyan-400 mb-4 text-center">
+        {title}
+      </h3>
+
       <table className="w-full border-separate border-spacing-y-2">
         <thead>
           <tr className="text-gray-400 text-sm uppercase tracking-wider">
