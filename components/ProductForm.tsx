@@ -1,11 +1,13 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import FileInput from "./UIComponents/FileInput";
 import TextInput from "./UIComponents/TextInput";
 import StarRating from "./UIComponents/StarRating";
 import TargetSelect from "./UIComponents/TargetSelect";
 import RatingTable from "./UIComponents/RatingTable";
 
+// Preguntas de cada sección
 const VisualQuestions = [
   { id: "v1", text: "Generalización del problema" },
   { id: "v2", text: "Probabilidad de Brandear (Crear Marca)" },
@@ -34,9 +36,11 @@ const StrategicQuestions = [
   { id: "s5", text: "Percepción de valor alta" },
   { id: "s6", text: "Grado de recurrencia (Se puede comprar más de una vez)" },
   { id: "s7", text: "Saturación (1 Mucha, 5 Poca)" },
-]
+];
 
 const ProductForm = () => {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     name: "",
     purpose: "",
@@ -59,8 +63,7 @@ const ProductForm = () => {
     },
   });
 
-  const [submittedData, setSubmittedData] = useState<any>(null);
-
+  // Manejo de cambios
   const handleRatingChange = (value: number) => {
     setFormData({ ...formData, rating: value });
   };
@@ -93,10 +96,15 @@ const ProductForm = () => {
     });
   };
 
+  // Submit
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Datos del formulario:", formData);
-    setSubmittedData(formData);
+
+    // Guardar en sessionStorage
+    sessionStorage.setItem("analysisData", JSON.stringify(formData));
+
+    // Redirigir a la página de análisis
+    router.push("/analysis");
   };
 
   return (
@@ -142,15 +150,6 @@ const ProductForm = () => {
           Finalizar
         </button>
       </div>
-
-      {submittedData && (
-        <div className="mt-6 p-4 bg-gray-800 rounded-lg text-left text-white">
-          <h3 className="font-bold text-cyan-400 mb-2">📦 Datos enviados:</h3>
-          <pre className="text-sm whitespace-pre-wrap">
-            {JSON.stringify(submittedData, null, 2)}
-          </pre>
-        </div>
-      )}
     </form>
   );
 };
