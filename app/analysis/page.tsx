@@ -4,13 +4,34 @@ import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer
 } from "recharts";
 
-const AnalysisPage = () => {
-  const [data, setData] = useState(null);
+interface SectionAnswers {
+  [key: string]: {
+    text: string;
+    value: number;
+  };
+}
+
+interface FormData {
+  name: string;
+  purpose: string;
+  problem: string;
+  rating: number;
+  targets: string[];
+  image?: string; // opcional si quieres guardar la imagen base64
+  sections: {
+    visual: { title: string; answers: SectionAnswers };
+    technical: { title: string; answers: SectionAnswers };
+    strategic: { title: string; answers: SectionAnswers };
+  };
+}
+
+const AnalysisPage: React.FC = () => {
+  const [data, setData] = useState<FormData | null>(null);
 
   useEffect(() => {
     const savedData = sessionStorage.getItem("analysisData");
     if (savedData) {
-      setData(JSON.parse(savedData));
+      setData(JSON.parse(savedData) as FormData);
     }
   }, []);
 
@@ -19,7 +40,7 @@ const AnalysisPage = () => {
   }
 
   // Calcular promedios por sección
-  const calcAverage = (answers) => {
+  const calcAverage = (answers: SectionAnswers) => {
     const values = Object.values(answers).map((a) => a.value);
     if (!values.length) return 0;
     return values.reduce((a, b) => a + b, 0) / values.length;
@@ -33,9 +54,9 @@ const AnalysisPage = () => {
   const finalScore = ((visualAvg + techAvg + stratAvg) / 3).toFixed(1);
 
   const scoreLabel =
-    finalScore >= 4
+    Number(finalScore) >= 4
       ? "🟢 Producto altamente recomendable"
-      : finalScore >= 3
+      : Number(finalScore) >= 3
       ? "🟡 Producto con potencial"
       : "🔴 No recomendable";
 
@@ -51,6 +72,13 @@ const AnalysisPage = () => {
       {/* Resumen */}
       <h1 className="text-2xl font-bold text-cyan-400 mb-4">📊 Análisis del producto</h1>
       <div className="bg-gray-900 p-4 rounded-lg mb-6">
+        {data.image && (
+          <img
+            src={data.image}
+            alt="Imagen del producto"
+            className="w-full max-w-xs h-auto mb-4 rounded-lg object-cover"
+          />
+        )}
         <p><strong>Nombre:</strong> {data.name}</p>
         <p><strong>Finalidad:</strong> {data.purpose}</p>
         <p><strong>Problema que resuelve:</strong> {data.problem}</p>
