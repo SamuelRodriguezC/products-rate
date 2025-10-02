@@ -6,6 +6,25 @@ import StarRating from "./UIComponents/StarRating";
 import TargetSelect from "./UIComponents/TargetSelect";
 import RatingTable from "./UIComponents/RatingTable";
 
+const VisualQuestions = {
+  q1: "Generalización del problema",
+  q2: "Probabilidad de Brandear (Crear Marca)",
+  q3: "Grado de satisfacción del problema",
+  q4: "Efecto Wow",
+  q5: "Existen productos relacionados",
+  q6: "Tamaño adecuado (Pequeño o Mediano)",
+  q7: "Facil uso e instalación",
+  q8: "Me apasiona el Nicho",
+  q9: "Grado de recurrencia (Se puede comprar más de una vez)",
+};
+
+const TechnicalQuestions = {
+  m1: "Dificultad de encontrar en mercado físico",
+  m2: "Actualizado (En su última versión)",
+  m3: "Se vende en tiendas online de otros paises ",
+  m4: "Valoración de clientes",
+};
+
 const ProductForm = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -13,17 +32,24 @@ const ProductForm = () => {
     problem: "",
     rating: 0,
     targets: [] as string[],
-    ranking: Array(9).fill(0), // 9 preguntas con valor inicial 0
+    sections: {
+      visual: {
+        title: "Calificación de criterios",
+        answers: {} as { [key: string]: { text: string; value: number } },
+      },
+      technical: {
+        title: "Análisis Técnico",
+        answers: {} as { [key: string]: { text: string; value: number } },
+      },
+    },
   });
 
   const [submittedData, setSubmittedData] = useState<any>(null);
 
-  // ⭐ Guardar calificación promedio
   const handleRatingChange = (value: number) => {
     setFormData({ ...formData, rating: value });
   };
 
-  // ⭐ Guardar cambios en inputs
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -31,18 +57,25 @@ const ProductForm = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  // ⭐ Guardar cambios en tabla
-  const handleRankingChange = (index: number, value: number) => {
-    const updatedRanking = [...formData.ranking];
-    updatedRanking[index] = value;
-    setFormData({ ...formData, ranking: updatedRanking });
-  };
-
-  const calcularEfectividad = () => {
-    const totalPreguntas = formData.ranking.length;
-    const maxPuntaje = totalPreguntas * 5;
-    const suma = formData.ranking.reduce((a, b) => a + b, 0);
-    return Math.round((suma / maxPuntaje) * 100);
+  const handleRankingChange = (
+    section: "visual" | "technical",
+    key: string,
+    value: number,
+    questionText: string
+  ) => {
+    setFormData({
+      ...formData,
+      sections: {
+        ...formData.sections,
+        [section]: {
+          ...formData.sections[section],
+          answers: {
+            ...formData.sections[section].answers,
+            [key]: { text: questionText, value },
+          },
+        },
+      },
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -53,7 +86,7 @@ const ProductForm = () => {
 
   return (
     <form onSubmit={handleSubmit} className="bg-gray-950/70 rounded-2xl p-8">
-      {/* Inputs básicos */}
+      {/* Datos básicos */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="col-span-2 flex h-full"><FileInput /></div>
         <div className="col-span-2 flex flex-col gap-4">
@@ -65,27 +98,33 @@ const ProductForm = () => {
         </div>
       </div>
 
-      {/* Tabla */}
-      <div className="space-y-4 text-center">
-        <RatingTable 
-          title="Calificación de cada criterio"
-          answers={formData.ranking}
-          onChange={handleRankingChange}
+      {/* Tablas reutilizables */}
+      <div className="space-y-6 mt-6">
+        <RatingTable
+          title={formData.sections.visual.title}
+          questions={VisualQuestions}
+          answers={formData.sections.visual.answers}
+          onChange={(key, value) =>
+            handleRankingChange("visual", key, value, VisualQuestions[key as keyof typeof VisualQuestions])
+          }
         />
-        <p className="text-lg mt-6">
-          🔥 Efectividad estimada:{" "}
-          <span className="font-bold text-cyan-400">{calcularEfectividad()}%</span>
-        </p>
+
+        <RatingTable
+          title={formData.sections.technical.title}
+          questions={TechnicalQuestions}
+          answers={formData.sections.technical.answers}
+          onChange={(key, value) =>
+            handleRankingChange("technical", key, value, TechnicalQuestions[key as keyof typeof TechnicalQuestions])
+          }
+        />
       </div>
 
-      {/* Botón */}
       <div className="flex justify-between mt-8">
         <button type="submit" className="px-6 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600">
           Finalizar
         </button>
       </div>
 
-      {/* Mostrar datos enviados */}
       {submittedData && (
         <div className="mt-6 p-4 bg-gray-800 rounded-lg text-left text-white">
           <h3 className="font-bold text-cyan-400 mb-2">📦 Datos enviados:</h3>

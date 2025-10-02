@@ -3,26 +3,15 @@ import React from "react";
 
 interface RatingTableProps {
   title: string;
-  answers: number[]; // ← respuestas actuales
-  onChange: (index: number, value: number) => void; // ← callback al padre
+  questions: { [key: string]: string };   // clave: id, valor: pregunta
+  answers: { [key: string]: { text: string; value: number } }; // clave: id, valor: objeto con texto y respuesta
+  onChange: (key: string, value: number) => void;
 }
 
-const questions = [
-  "Generalización del problema",
-  "Probabilidad de Brandear (Crear Marca)",
-  "Grado de satisfacción del problema",
-  "Efecto Wow",
-  "Existen productos relacionados",
-  "Tamaño adecuado (Pequeño o Mediano)",
-  "Facil uso e instalación ",
-  "Me apasiona el Nicho",
-  "Grado de recurrencia (Se puede comprar más de una vez)",
-];
-
-const RatingTable: React.FC<RatingTableProps> = ({ title, answers, onChange }) => {
+const RatingTable: React.FC<RatingTableProps> = ({ title, questions, answers, onChange }) => {
   return (
     <div className="overflow-x-auto p-4">
-      <h3 className="text-4xl font-bold text-cyan-400 mb-4 text-center">
+      <h3 className="text-2xl font-bold text-cyan-400 mb-4 text-center">
         {title}
       </h3>
 
@@ -36,8 +25,8 @@ const RatingTable: React.FC<RatingTableProps> = ({ title, answers, onChange }) =
           </tr>
         </thead>
         <tbody>
-          {questions.map((q, qi) => (
-            <tr key={qi} className="bg-gray-900 hover:bg-cyan-900 transition-colors">
+          {Object.entries(questions).map(([key, q]) => (
+            <tr key={key} className="bg-gray-900 hover:bg-cyan-900 transition-colors">
               <td className="py-3 px-4 text-left text-gray-200 text-sm font-medium">
                 {q}
               </td>
@@ -46,10 +35,10 @@ const RatingTable: React.FC<RatingTableProps> = ({ title, answers, onChange }) =
                   <div className="flex justify-center">
                     <input
                       type="radio"
-                      name={`q${qi}`}
+                      name={`${title}-${key}`}
                       value={num}
-                      checked={answers[qi] === num}
-                      onChange={() => onChange(qi, num)}
+                      checked={answers[key]?.value === num}
+                      onChange={() => onChange(key, num)}
                       className="w-4 h-4 accent-cyan-400 cursor-pointer"
                     />
                   </div>
