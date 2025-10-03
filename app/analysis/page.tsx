@@ -1,9 +1,15 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import {
-  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer
+  Radar,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  ResponsiveContainer,
 } from "recharts";
 import jsPDF from "jspdf";
+import GeneralDataCard from "@/components/Analisys/GeneralDataCard";
 
 interface SectionAnswers {
   [key: string]: {
@@ -94,7 +100,10 @@ const AnalysisPage: React.FC = () => {
 
       doc.setFontSize(11);
       Object.values(answers).forEach((ans) => {
-        const splitted = doc.splitTextToSize(`${ans.text}: ${ans.value}/5`, 180);
+        const splitted = doc.splitTextToSize(
+          `${ans.text}: ${ans.value}/5`,
+          180
+        );
         doc.text(splitted, 15, y);
         y += splitted.length * lineHeight;
 
@@ -110,7 +119,10 @@ const AnalysisPage: React.FC = () => {
     // Rankings detallados
     addSectionDetails("📌 Detalle de Visual", data.sections.visual.answers);
     addSectionDetails("📌 Detalle Técnico", data.sections.technical.answers);
-    addSectionDetails("📌 Detalle Estratégico", data.sections.strategic.answers);
+    addSectionDetails(
+      "📌 Detalle Estratégico",
+      data.sections.strategic.answers
+    );
 
     // Conclusión
     doc.setFontSize(13);
@@ -132,57 +144,66 @@ const AnalysisPage: React.FC = () => {
   ];
 
   return (
-    <div className="p-8 text-white">
-      {/* Resumen */}
-      <h1 className="text-2xl font-bold text-cyan-400 mb-4">📊 Análisis del producto</h1>
-      <div className="bg-gray-900 p-4 rounded-lg mb-6">
-        {data.image && (
-          <img
-            src={data.image}
-            alt="Imagen del producto"
-            className="w-full max-w-xs h-auto mb-4 rounded-lg object-cover"
+    <div className="p-8 text-white min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900  flex flex-col gap-6">
+      <h1 className="mb-4 text-3xl font-extrabold text-white md:text-5xl lg:text-6xl">
+        <span className="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">
+          Análisis de
+        </span>{" "}
+        Tu Producto.
+      </h1>
+
+      {/* Contenedor principal: Card izquierda, contadores derecha */}
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Card izquierda */}
+        <div className="md:w-1/2">
+          <GeneralDataCard
+            name={data.name}
+            purpose={data.purpose}
+            problem={data.problem}
+            targets={data.targets}
+            rating={data.rating}
+            image={data.image}
           />
-        )}
-        <p><strong>Nombre:</strong> {data.name}</p>
-        <p><strong>Finalidad:</strong> {data.purpose}</p>
-        <p><strong>Problema que resuelve:</strong> {data.problem}</p>
-        <p><strong>Targets:</strong> {data.targets.join(", ")}</p>
-        <p><strong>Calificación promedio:</strong> ⭐ {data.rating}</p>
-      </div>
+        </div>
 
-      {/* Promedios */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-gray-800 p-4 rounded-lg text-center">
-          <h2 className="font-bold text-cyan-300">Visual</h2>
-          <p className="text-lg">{visualAvg.toFixed(1)}/5</p>
-        </div>
-        <div className="bg-gray-800 p-4 rounded-lg text-center">
-          <h2 className="font-bold text-cyan-300">Técnico</h2>
-          <p className="text-lg">{techAvg.toFixed(1)}/5</p>
-        </div>
-        <div className="bg-gray-800 p-4 rounded-lg text-center">
-          <h2 className="font-bold text-cyan-300">Estratégico</h2>
-          <p className="text-lg">{stratAvg.toFixed(1)}/5</p>
-        </div>
-      </div>
+        {/* Contadores derecha */}
+        <div className="md:w-1/2 flex flex-col gap-4">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="card-container p-4 text-center">
+              <h2 className="font-bold text-cyan-300">Visual</h2>
+              <p className="text-lg">{visualAvg.toFixed(1)}/5</p>
+            </div>
+            <div className="card-container p-4 text-center">
+              <h2 className="font-bold text-cyan-300">Técnico</h2>
+              <p className="text-lg">{techAvg.toFixed(1)}/5</p>
+            </div>
+            <div className="card-container p-4 text-center">
+              <h2 className="font-bold text-cyan-300">Estratégico</h2>
+              <p className="text-lg">{stratAvg.toFixed(1)}/5</p>
+            </div>
+          </div>
 
-      {/* Radar */}
-      <div className="bg-gray-900 p-4 rounded-lg mb-6">
-        <h2 className="text-lg font-bold mb-2 text-cyan-400">📈 Radar de secciones</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
-            <PolarGrid />
-            <PolarAngleAxis dataKey="subject" stroke="#38bdf8" />
-            <PolarRadiusAxis angle={30} domain={[0, 5]} />
-            <Radar
-              name="Puntaje"
-              dataKey="A"
-              stroke="#38bdf8"
-              fill="#38bdf8"
-              fillOpacity={0.6}
-            />
-          </RadarChart>
-        </ResponsiveContainer>
+          {/* Radar Chart debajo de los contadores */}
+          <div className="card-container p-4  mt-4">
+            <h2 className="text-lg font-bold mb-2 text-cyan-400">
+              📈 Radar de secciones
+            </h2>
+            <ResponsiveContainer width="100%" height={250}>
+              <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+                <PolarGrid />
+                <PolarAngleAxis dataKey="subject" stroke="#38bdf8" />
+                <PolarRadiusAxis angle={30} domain={[0, 5]} />
+                <Radar
+                  name="Puntaje"
+                  dataKey="A"
+                  stroke="#38bdf8"
+                  fill="#38bdf8"
+                  fillOpacity={0.6}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
 
       {/* Conclusión */}

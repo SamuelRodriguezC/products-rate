@@ -199,9 +199,9 @@ const ProductForm = () => {
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
-      className="relative border-2 border-cyan-400/50 p-[17px] rounded-3xl bg-gradient-to-r from-cyan-400/60 via-blue-500/60 to-teal-600/60 shadow-[0_0_100px_10px_rgba(34,211,238,0.4)]"
+      className="container-gradient"
     >
-      <motion.form onSubmit={handleSubmit} className="bg-gray-900 backdrop-blur-xl rounded-3xl p-10 w-full h-full">
+      <motion.form onSubmit={handleSubmit} className="container-hero">
         <ProgressBar step={step} totalSteps={4} />
 
         <motion.div

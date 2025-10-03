@@ -120,3 +120,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+
+@layer utilities {
+  .container-gradient {
+    @apply relative border-2 border-cyan-400/50 p-[10px] rounded-3xl bg-gradient-to-r from-cyan-400/60 via-blue-500/60 to-teal-600/60 shadow-[0_0_160px_10px_rgba(34,211,238,0.4)]
+  }
+
+  .container-hero {
+    @apply bg-gray-900 backdrop-blur-xl rounded-3xl p-10 w-full h-full 
+  }
+
+  .card-container {
+    @apply bg-gray-900 rounded-2xl border-2 border-cyan-900/50
+  }
+
+
+}
