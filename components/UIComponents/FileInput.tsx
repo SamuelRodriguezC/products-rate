@@ -3,9 +3,10 @@ import { Trash2, Upload, Loader2 } from "lucide-react";
 
 interface FileInputProps {
   onFileSelect: (fileUrl: string | null) => void;
+  error?: string; // <-- Recibe el error opcional
 }
 
-const FileInput: React.FC<FileInputProps> = ({ onFileSelect }) => {
+const FileInput: React.FC<FileInputProps> = ({ onFileSelect, error }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -59,35 +60,28 @@ const FileInput: React.FC<FileInputProps> = ({ onFileSelect }) => {
           previewUrl
             ? "border-cyan-400 bg-cyan-50/5"
             : "border-cyan-400 hover:bg-cyan-50/5"
-        }`}
+        } ${error ? "border-red-500" : ""}`} // <-- borde rojo si hay error
         onClick={() => !selectedFile && inputRef.current?.click()}
       >
         {!selectedFile && (
           <div className="flex flex-col items-center">
             <Upload className="w-12 h-12 text-cyan-400 mb-2" />
-            <p className="text-cyan-400 font-medium">Subir Imagen</p>
+            <p className={`font-medium ${error ? "text-red-500" : "text-cyan-400"}`}>Subir Imagen</p>
           </div>
         )}
 
         {selectedFile && previewUrl && (
           <>
-            {/* Imagen en preview */}
             <img
               src={previewUrl}
               alt="preview"
-              className={`w-full h-full object-cover transition ${
-                loading ? "grayscale" : ""
-              }`}
+              className={`w-full h-full object-cover transition ${loading ? "grayscale" : ""}`}
             />
-
-            {/* Spinner mientras carga */}
             {loading && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                 <Loader2 className="w-10 h-10 text-white animate-spin" />
               </div>
             )}
-
-            {/* Botón eliminar arriba a la derecha */}
             {!loading && (
               <button
                 type="button"
@@ -108,6 +102,9 @@ const FileInput: React.FC<FileInputProps> = ({ onFileSelect }) => {
           accept=".jpg,.jpeg,.png"
         />
       </div>
+
+      {/* Mensaje de error */}
+      {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
     </div>
   );
 };

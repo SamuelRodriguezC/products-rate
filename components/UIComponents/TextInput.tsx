@@ -5,6 +5,7 @@ interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   label?: string; // <-- nueva prop opcional
+  error?: string; // <-- Recibe el error opcional
 }
 
 const TextInput: React.FC<TextInputProps> = ({
@@ -15,6 +16,7 @@ const TextInput: React.FC<TextInputProps> = ({
   placeholder,
   className = "",
   label,
+  error,
   ...props
 }) => {
   return (
@@ -41,6 +43,8 @@ const TextInput: React.FC<TextInputProps> = ({
           outline-none transition duration-500 ${className}`}
         {...props}
       />
+            {/* Mensaje de error */}
+      {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
     </div>
   );
 };

@@ -5,10 +5,11 @@ type StarRatingProps = {
   label?: string;
   name: string;
   value?: number;
+  error?: string; // <-- Recibe el error opcional
   onChange?: (value: number) => void;
 };
 
-const StarRating: React.FC<StarRatingProps> = ({ label, name, value = 0, onChange }) => {
+const StarRating: React.FC<StarRatingProps> = ({ label, name, value = 0, onChange, error}) => {
   const [hover, setHover] = useState<number | null>(null);
   const [rating, setRating] = useState<number>(value);
 
@@ -39,6 +40,8 @@ const StarRating: React.FC<StarRatingProps> = ({ label, name, value = 0, onChang
           </button>
         ))}
       </div>
+            {/* Mensaje de error */}
+      {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
 
       {/* input oculto para formularios */}
       <input type="hidden" name={name} value={rating} />

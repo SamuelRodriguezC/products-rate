@@ -69,18 +69,22 @@ interface Step1Props {
   setFormData: React.Dispatch<React.SetStateAction<FormData>>;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   handleRatingChange: (value: number) => void;
+  errors: { [key: string]: string };
 }
-const Step1: React.FC<Step1Props> = ({ formData, setFormData, handleChange, handleRatingChange }) => (
+const Step1: React.FC<Step1Props> = ({ formData, setFormData, handleChange, handleRatingChange, errors }) => (
   <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
     <motion.div className="col-span-2 flex h-full" transition={{ type: "spring", stiffness: 200 }}>
-      <FileInput onFileSelect={(img) => setFormData({ ...formData, image: img })} />
+      <FileInput 
+        onFileSelect={(img) => setFormData({ ...formData, image: img })}
+        error={errors.image}
+      />
     </motion.div>
     <div className="col-span-2 flex flex-col gap-5">
-      <TextInput name="name" type="text" label="Nombre del producto" value={formData.name} onChange={handleChange} />
-      <TextInput name="purpose" type="text" label="¿Para qué sirve?" value={formData.purpose} onChange={handleChange} />
-      <TextInput name="problem" type="text" label="¿Qué problema resuelve?" value={formData.problem} onChange={handleChange} />
-      <TargetSelect value={formData.targets} onChange={(val: string[]) => setFormData({ ...formData, targets: val })} />
-      <StarRating label="Calificación promedio" name="rating" value={formData.rating} onChange={handleRatingChange} />
+      <TextInput name="name" type="text" label="Nombre del producto" value={formData.name} onChange={handleChange} error={errors.name} />
+      <TextInput name="purpose" type="text" label="¿Para qué sirve?" value={formData.purpose} onChange={handleChange} error={errors.purpose} />
+      <TextInput name="problem" type="text" label="¿Qué problema resuelve?" value={formData.problem} onChange={handleChange} error={errors.problem} />
+      <TargetSelect value={formData.targets} onChange={(val: string[]) => setFormData({ ...formData, targets: val })} error={errors.targets} />
+      <StarRating label="Calificación promedio" name="rating" value={formData.rating} onChange={handleRatingChange} error={errors.rating} />
     </div>
   </div>
 );
@@ -103,6 +107,8 @@ const ProductForm = () => {
     },
   });
 
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
   // Handlers
   const handleRatingChange = (value: number) => setFormData({ ...formData, rating: value });
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -121,9 +127,48 @@ const ProductForm = () => {
       },
     });
   };
+
+  // Validación por pasos
+  const validateStep = () => {
+    const newErrors: { [key: string]: string } = {};
+    if (step === 1) {
+      if (!formData.name) newErrors.name = "El nombre es obligatorio";
+      if (!formData.purpose) newErrors.purpose = "El propósito es obligatorio";
+      if (!formData.problem) newErrors.problem = "El problema es obligatorio";
+      if (!formData.rating) newErrors.rating = "La calificación es obligatoria";
+      if (!formData.image) newErrors.image = "Debe subir una imagen";
+      if (!formData.targets.length) newErrors.targets = "Seleccione al menos un target";
+    }
+    if (step === 2) {
+      VisualQuestions.forEach(q => {
+        if (!formData.sections.visual.answers[q.id]?.value) {
+          newErrors[q.id] = "Esta pregunta es obligatoria";
+        }
+      });
+    }
+    if (step === 3) {
+      TechnicalQuestions.forEach(q => {
+        if (!formData.sections.technical.answers[q.id]?.value) {
+          newErrors[q.id] = "Esta pregunta es obligatoria";
+        }
+      });
+    }
+    if (step === 4) {
+      StrategicQuestions.forEach(q => {
+        if (!formData.sections.strategic.answers[q.id]?.value) {
+          newErrors[q.id] = "Esta pregunta es obligatoria";
+        }
+      });
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleNext = () => {
-    setDirection("forward");
-    setStep((prev) => Math.min(prev + 1, 4));
+    if (validateStep()) {
+      setDirection("forward");
+      setStep((prev) => Math.min(prev + 1, 4));
+    }
   };
   const handleBack = () => {
     setDirection("backward");
@@ -131,20 +176,18 @@ const ProductForm = () => {
   };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    sessionStorage.setItem("analysisData", JSON.stringify(formData));
-    router.push("/analysis");
+    if (validateStep()) {
+      sessionStorage.setItem("analysisData", JSON.stringify(formData));
+      router.push("/analysis");
+    }
   };
 
-  // Animaciones según dirección
   const variants = {
     enter: (dir: "forward" | "backward") => ({
       x: dir === "forward" ? 100 : -100,
       opacity: 0,
     }),
-    center: {
-      x: 0,
-      opacity: 1,
-    },
+    center: { x: 0, opacity: 1 },
     exit: (dir: "forward" | "backward") => ({
       x: dir === "forward" ? -100 : 100,
       opacity: 0,
@@ -159,7 +202,6 @@ const ProductForm = () => {
       className="relative border-2 border-cyan-400/50 p-[17px] rounded-3xl bg-gradient-to-r from-cyan-400/60 via-blue-500/60 to-teal-600/60 shadow-[0_0_100px_10px_rgba(34,211,238,0.4)]"
     >
       <motion.form onSubmit={handleSubmit} className="bg-gray-900 backdrop-blur-xl rounded-3xl p-10 w-full h-full">
-        {/* Barra de progreso */}
         <ProgressBar step={step} totalSteps={4} />
 
         <motion.div
@@ -171,26 +213,16 @@ const ProductForm = () => {
           exit="exit"
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
-          {step === 1 && <Step1 formData={formData} setFormData={setFormData} handleChange={handleChange} handleRatingChange={handleRatingChange} />}
-          {step === 2 && <RatingTable title={formData.sections.visual.title} questions={VisualQuestions} answers={formData.sections.visual.answers} onChange={(key, value, text) => handleRankingChange("visual", key, value, text)} />}
-          {step === 3 && <RatingTable title={formData.sections.technical.title} questions={TechnicalQuestions} answers={formData.sections.technical.answers} onChange={(key, value, text) => handleRankingChange("technical", key, value, text)} />}
-          {step === 4 && <RatingTable title={formData.sections.strategic.title} questions={StrategicQuestions} answers={formData.sections.strategic.answers} onChange={(key, value, text) => handleRankingChange("strategic", key, value, text)} />}
+          {step === 1 && <Step1 formData={formData} setFormData={setFormData} handleChange={handleChange} handleRatingChange={handleRatingChange} errors={errors} />}
+          {step === 2 && <RatingTable title={formData.sections.visual.title} questions={VisualQuestions} answers={formData.sections.visual.answers} errors={errors} onChange={(key, value, text) => handleRankingChange("visual", key, value, text)} />}
+          {step === 3 && <RatingTable title={formData.sections.technical.title} questions={TechnicalQuestions} answers={formData.sections.technical.answers} errors={errors} onChange={(key, value, text) => handleRankingChange("technical", key, value, text)} />}
+          {step === 4 && <RatingTable title={formData.sections.strategic.title} questions={StrategicQuestions} answers={formData.sections.strategic.answers} errors={errors} onChange={(key, value, text) => handleRankingChange("strategic", key, value, text)} />}
         </motion.div>
 
-        {/* Botones de navegación */}
         <div className="flex justify-between mt-10">
-          {step > 1 && (
-            <>
-            <BackButton onClick={handleBack} text="Volver"/></>
-          )}
-          {step < 4 && (
-            <>
-            <BackButton onClick={handleNext} text="Siguiente"/></>
-            
-          )}
-          {step === 4 && (
-             <Button type="submit" text="🚀 Finalizar" />
-          )}
+          {step > 1 && <BackButton onClick={handleBack} text="Volver" />}
+          {step < 4 && <BackButton onClick={handleNext} text="Siguiente" />}
+          {step === 4 && <Button type="submit" text="🚀 Finalizar" />}
         </div>
       </motion.form>
     </motion.div>

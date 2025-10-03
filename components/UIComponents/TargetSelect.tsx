@@ -50,9 +50,10 @@ const TARGET_OPTIONS = [
 interface TargetSelectProps {
   value: string[];
   onChange: (val: string[]) => void;
+  error?: string; // <-- Recibe el error opcional
 }
 
-const TargetSelect: React.FC<TargetSelectProps> = ({ value, onChange }) => {
+const TargetSelect: React.FC<TargetSelectProps> = ({ value, onChange, error }) => {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -150,6 +151,8 @@ const TargetSelect: React.FC<TargetSelectProps> = ({ value, onChange }) => {
           ))}
         </div>
       )}
+            {/* Mensaje de error */}
+      {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
     </div>
   );
 };
