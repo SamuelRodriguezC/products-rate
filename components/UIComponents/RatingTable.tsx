@@ -11,7 +11,7 @@ interface RatingTableProps {
 const RatingTable: React.FC<RatingTableProps> = ({ title, questions, answers, onChange }) => {
   return (
     <div className="overflow-x-auto p-4">
-      <h3 className="text-2xl font-bold text-cyan-400 mb-4 text-center">
+      <h3 className="text-3xl font-bold text-white mb-4 text-center uppercase">
         {title}
       </h3>
 

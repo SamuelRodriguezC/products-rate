@@ -7,6 +7,7 @@ import TextInput from "./UIComponents/TextInput";
 import StarRating from "./UIComponents/StarRating";
 import TargetSelect from "./UIComponents/TargetSelect";
 import RatingTable from "./UIComponents/RatingTable";
+import ProgressBar from "./UIComponents/ProgressBar";
 
 // Interfaces
 interface Answer {
@@ -60,7 +61,7 @@ const StrategicQuestions = [
   { id: "s7", text: "Saturación (1 Mucha, 5 Poca)" },
 ];
 
-// Componente Paso 1
+// Paso 1
 interface Step1Props {
   formData: FormData;
   setFormData: React.Dispatch<React.SetStateAction<FormData>>;
@@ -94,7 +95,7 @@ const ProductForm = () => {
     image: null,
     targets: [],
     sections: {
-      visual: { title: "Calificación de criterios", answers: {} },
+      visual: { title: "Análisis Visual", answers: {} },
       technical: { title: "Análisis Técnico", answers: {} },
       strategic: { title: "Análisis Estratégico", answers: {} },
     },
@@ -156,6 +157,9 @@ const ProductForm = () => {
       className="relative border-2 border-cyan-400/50 p-[17px] rounded-3xl bg-gradient-to-r from-cyan-400/60 via-blue-500/60 to-teal-600/60 shadow-[0_0_100px_10px_rgba(34,211,238,0.4)]"
     >
       <motion.form onSubmit={handleSubmit} className="bg-gray-900 backdrop-blur-xl rounded-3xl p-10 w-full h-full">
+        {/* Barra de progreso */}
+        <ProgressBar step={step} totalSteps={4} />
+
         <motion.div
           key={step}
           custom={direction}
