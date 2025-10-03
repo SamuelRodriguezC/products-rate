@@ -10,6 +10,8 @@ import {
 } from "recharts";
 import jsPDF from "jspdf";
 import GeneralDataCard from "@/components/Analisys/GeneralDataCard";
+import SectionCounters from "@/components/Analisys/SectionCounter";
+import SectionCounter from "@/components/Analisys/SectionCounter";
 
 interface SectionAnswers {
   [key: string]: {
@@ -169,18 +171,9 @@ const AnalysisPage: React.FC = () => {
         {/* Contadores derecha */}
         <div className="md:w-1/2 flex flex-col gap-4">
           <div className="grid grid-cols-3 gap-4">
-            <div className="card-container p-4 text-center">
-              <h2 className="font-bold text-cyan-300">Visual</h2>
-              <p className="text-lg">{visualAvg.toFixed(1)}/5</p>
-            </div>
-            <div className="card-container p-4 text-center">
-              <h2 className="font-bold text-cyan-300">Técnico</h2>
-              <p className="text-lg">{techAvg.toFixed(1)}/5</p>
-            </div>
-            <div className="card-container p-4 text-center">
-              <h2 className="font-bold text-cyan-300">Estratégico</h2>
-              <p className="text-lg">{stratAvg.toFixed(1)}/5</p>
-            </div>
+            <SectionCounter title="Visual" value={visualAvg} />
+            <SectionCounter title="Técnico" value={techAvg} />
+            <SectionCounter title="Estratégico" value={stratAvg} />
           </div>
 
           {/* Radar Chart debajo de los contadores */}
@@ -207,7 +200,7 @@ const AnalysisPage: React.FC = () => {
       </div>
 
       {/* Conclusión */}
-      <div className="bg-gray-800 p-4 rounded-lg mb-6">
+      <div className="bg-gray-800 p-4 rounded-lg mb-6 card-container">
         <h2 className="text-lg font-bold text-cyan-400 mb-2">📌 Conclusión</h2>
         <p className="text-xl">{scoreLabel}</p>
         <p className="mt-2 text-gray-300">
