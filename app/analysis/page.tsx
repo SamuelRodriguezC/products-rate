@@ -248,11 +248,19 @@ const AnalysisPage: React.FC = () => {
       </div>
 
       <ConclusionCard scoreLabel={scoreLabel} finalScore={finalScore} />
+        {/* Botones al final */}
+        <div className="flex justify-end gap-4">
+          {/* Botón para volver a rankear */}
+          <button
+            onClick={() => (window.location.href = "/")}
+            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition cursor-pointer"
+          >
+            Volver a rankear
+          </button>
 
-      {/* Botón descargar */}
-      <div className="flex justify-end">
-        <ButtonDownload onClick={handleDownloadPDF} text="Descargar PDF" />
-      </div>
+          {/* Botón descargar PDF */}
+          <ButtonDownload onClick={handleDownloadPDF} text="Descargar PDF" />
+        </div>
     </div>
   );
 };
