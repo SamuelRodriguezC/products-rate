@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer
 } from "recharts";
+import jsPDF from "jspdf";
 
 interface SectionAnswers {
   [key: string]: {
@@ -17,7 +18,7 @@ interface FormData {
   problem: string;
   rating: number;
   targets: string[];
-  image?: string; // opcional si quieres guardar la imagen base64
+  image?: string;
   sections: {
     visual: { title: string; answers: SectionAnswers };
     technical: { title: string; answers: SectionAnswers };
@@ -50,17 +51,80 @@ const AnalysisPage: React.FC = () => {
   const techAvg = calcAverage(data.sections.technical.answers);
   const stratAvg = calcAverage(data.sections.strategic.answers);
 
-  // Score final
-  const finalScore = ((visualAvg + techAvg + stratAvg) / 3).toFixed(1);
+  // Puntaje final en porcentaje
+  const rawScore = (visualAvg + techAvg + stratAvg) / 3; // de 0 a 5
+  const finalScore = ((rawScore / 5) * 100).toFixed(1); // en porcentaje
 
   const scoreLabel =
-    Number(finalScore) >= 4
+    Number(finalScore) >= 80
       ? "🟢 Producto altamente recomendable"
-      : Number(finalScore) >= 3
+      : Number(finalScore) >= 60
       ? "🟡 Producto con potencial"
       : "🔴 No recomendable";
 
-  // Datos para radar chart
+  // Generar PDF
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+
+    doc.setFontSize(16);
+    doc.text("📊 Análisis del producto", 10, 20);
+
+    // Datos generales
+    doc.setFontSize(12);
+    doc.text(`Nombre: ${data.name}`, 10, 40);
+    doc.text(`Finalidad: ${data.purpose}`, 10, 50);
+    doc.text(`Problema que resuelve: ${data.problem}`, 10, 60);
+    doc.text(`Targets: ${data.targets.join(", ")}`, 10, 70);
+    doc.text(`Calificación promedio: ${data.rating}`, 10, 80);
+
+    // Promedios por sección
+    doc.text("Promedios por sección:", 10, 100);
+    doc.text(`Visual: ${visualAvg.toFixed(1)}/5`, 20, 110);
+    doc.text(`Técnico: ${techAvg.toFixed(1)}/5`, 20, 120);
+    doc.text(`Estratégico: ${stratAvg.toFixed(1)}/5`, 20, 130);
+
+    let y = 150;
+    const lineHeight = 8;
+
+    // Función auxiliar para listar respuestas
+    const addSectionDetails = (title: string, answers: SectionAnswers) => {
+      doc.setFontSize(13);
+      doc.text(title, 10, y);
+      y += lineHeight;
+
+      doc.setFontSize(11);
+      Object.values(answers).forEach((ans) => {
+        const splitted = doc.splitTextToSize(`${ans.text}: ${ans.value}/5`, 180);
+        doc.text(splitted, 15, y);
+        y += splitted.length * lineHeight;
+
+        if (y > 270) {
+          doc.addPage();
+          y = 20;
+        }
+      });
+
+      y += lineHeight;
+    };
+
+    // Rankings detallados
+    addSectionDetails("📌 Detalle de Visual", data.sections.visual.answers);
+    addSectionDetails("📌 Detalle Técnico", data.sections.technical.answers);
+    addSectionDetails("📌 Detalle Estratégico", data.sections.strategic.answers);
+
+    // Conclusión
+    doc.setFontSize(13);
+    doc.text("Conclusión:", 10, y);
+    y += lineHeight;
+    doc.setFontSize(11);
+    doc.text(`${scoreLabel}`, 20, y);
+    y += lineHeight;
+    doc.text(`Puntaje final: ${finalScore}%`, 20, y);
+
+    doc.save("analisis_producto.pdf");
+  };
+
+  // Datos radar chart
   const radarData = [
     { subject: "Visual", A: visualAvg, fullMark: 5 },
     { subject: "Técnico", A: techAvg, fullMark: 5 },
@@ -86,7 +150,7 @@ const AnalysisPage: React.FC = () => {
         <p><strong>Calificación promedio:</strong> ⭐ {data.rating}</p>
       </div>
 
-      {/* Promedios por sección */}
+      {/* Promedios */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="bg-gray-800 p-4 rounded-lg text-center">
           <h2 className="font-bold text-cyan-300">Visual</h2>
@@ -102,7 +166,7 @@ const AnalysisPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Gráfico radar */}
+      {/* Radar */}
       <div className="bg-gray-900 p-4 rounded-lg mb-6">
         <h2 className="text-lg font-bold mb-2 text-cyan-400">📈 Radar de secciones</h2>
         <ResponsiveContainer width="100%" height={300}>
@@ -122,12 +186,22 @@ const AnalysisPage: React.FC = () => {
       </div>
 
       {/* Conclusión */}
-      <div className="bg-gray-800 p-4 rounded-lg">
+      <div className="bg-gray-800 p-4 rounded-lg mb-6">
         <h2 className="text-lg font-bold text-cyan-400 mb-2">📌 Conclusión</h2>
         <p className="text-xl">{scoreLabel}</p>
         <p className="mt-2 text-gray-300">
-          Puntaje final: <span className="font-bold">{finalScore}/5</span>
+          Puntaje final: <span className="font-bold">{finalScore}%</span>
         </p>
+      </div>
+
+      {/* Botón descargar */}
+      <div className="flex justify-end">
+        <button
+          onClick={handleDownloadPDF}
+          className="px-6 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white"
+        >
+          📥 Descargar PDF
+        </button>
       </div>
     </div>
   );

@@ -7,6 +7,33 @@ import StarRating from "./UIComponents/StarRating";
 import TargetSelect from "./UIComponents/TargetSelect";
 import RatingTable from "./UIComponents/RatingTable";
 
+// -------------------------------
+// Interfaces para tipado fuerte
+// -------------------------------
+interface Answer {
+  text: string;
+  value: number;
+}
+
+interface Section {
+  title: string;
+  answers: { [key: string]: Answer };
+}
+
+interface FormData {
+  name: string;
+  purpose: string;
+  problem: string;
+  rating: number;
+  image: string | null; // 👈 puede ser string (base64 o URL) o null
+  targets: string[];
+  sections: {
+    visual: Section;
+    technical: Section;
+    strategic: Section;
+  };
+}
+
 // Preguntas de cada sección
 const VisualQuestions = [
   { id: "v1", text: "Generalización del problema" },
@@ -29,8 +56,8 @@ const TechnicalQuestions = [
 ];
 
 const StrategicQuestions = [
-  { id: "s1", text: "Se puede vender en bundle, es low ticket"},
-  { id: "s2", text: "Costo de adquisición bajo (5 - 20 mil COP)"},
+  { id: "s1", text: "Se puede vender en bundle, es low ticket" },
+  { id: "s2", text: "Costo de adquisición bajo (5 - 20 mil COP)" },
   { id: "s3", text: "Se puede aplicar un angulo de venta diferente a la competencia" },
   { id: "s4", text: "Público amplio" },
   { id: "s5", text: "Percepción de valor alta" },
@@ -41,25 +68,18 @@ const StrategicQuestions = [
 const ProductForm = () => {
   const router = useRouter();
 
-  const [formData, setFormData] = useState({
+  // Estado inicial tipado
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     purpose: "",
     problem: "",
     rating: 0,
-    targets: [] as string[],
+    image: null,
+    targets: [],
     sections: {
-      visual: {
-        title: "Calificación de criterios",
-        answers: {} as { [key: string]: { text: string; value: number } },
-      },
-      technical: {
-        title: "Análisis Técnico",
-        answers: {} as { [key: string]: { text: string; value: number } },
-      },
-      strategic: {
-        title: "Análisis Estratégico",
-        answers: {} as { [key: string]: { text: string; value: number } },
-      }
+      visual: { title: "Calificación de criterios", answers: {} },
+      technical: { title: "Análisis Técnico", answers: {} },
+      strategic: { title: "Análisis Estratégico", answers: {} },
     },
   });
 
@@ -111,13 +131,43 @@ const ProductForm = () => {
     <form onSubmit={handleSubmit} className="bg-gray-950/70 rounded-2xl p-8">
       {/* Datos básicos */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="col-span-2 flex h-full"><FileInput /></div>
+        <div className="col-span-2 flex h-full">
+          <FileInput
+            onFileSelect={(img) => setFormData({ ...formData, image: img })}
+          />
+        </div>
         <div className="col-span-2 flex flex-col gap-4">
-          <TextInput name="name" type="text" label="Nombre" value={formData.name} onChange={handleChange} />
-          <TextInput name="purpose" type="text" label="Finalidad" value={formData.purpose} onChange={handleChange} />
-          <TextInput name="problem" type="text" label="Problema" value={formData.problem} onChange={handleChange} />
-          <TargetSelect value={formData.targets} onChange={(val: string[]) => setFormData({ ...formData, targets: val })} />
-          <StarRating label="Calificación promedio" name="rating" value={formData.rating} onChange={handleRatingChange} />
+          <TextInput
+            name="name"
+            type="text"
+            label="Nombre"
+            value={formData.name}
+            onChange={handleChange}
+          />
+          <TextInput
+            name="purpose"
+            type="text"
+            label="Finalidad"
+            value={formData.purpose}
+            onChange={handleChange}
+          />
+          <TextInput
+            name="problem"
+            type="text"
+            label="Problema"
+            value={formData.problem}
+            onChange={handleChange}
+          />
+          <TargetSelect
+            value={formData.targets}
+            onChange={(val: string[]) => setFormData({ ...formData, targets: val })}
+          />
+          <StarRating
+            label="Calificación promedio"
+            name="rating"
+            value={formData.rating}
+            onChange={handleRatingChange}
+          />
         </div>
       </div>
 
@@ -146,7 +196,10 @@ const ProductForm = () => {
       </div>
 
       <div className="flex justify-between mt-8">
-        <button type="submit" className="px-6 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600">
+        <button
+          type="submit"
+          className="px-6 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600"
+        >
           Finalizar
         </button>
       </div>

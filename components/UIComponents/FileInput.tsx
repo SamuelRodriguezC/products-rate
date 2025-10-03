@@ -1,7 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Trash2, Upload } from "lucide-react";
 
-const FileInput = () => {
+interface FileInputProps {
+  onFileSelect: (fileUrl: string | null) => void;
+}
+
+const FileInput: React.FC<FileInputProps> = ({ onFileSelect }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -12,9 +16,18 @@ const FileInput = () => {
       setSelectedFile(file);
 
       if (file.type.startsWith("image/")) {
-        setPreviewUrl(URL.createObjectURL(file));
+        const url = URL.createObjectURL(file);
+        setPreviewUrl(url);
+
+        // Guardar también en base64 para análisis
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          onFileSelect(reader.result as string);
+        };
+        reader.readAsDataURL(file);
       } else {
         setPreviewUrl(null);
+        onFileSelect(null);
       }
     }
   };
@@ -22,6 +35,7 @@ const FileInput = () => {
   const handleRemove = () => {
     setSelectedFile(null);
     setPreviewUrl(null);
+    onFileSelect(null);
     if (inputRef.current) inputRef.current.value = "";
   };
 
@@ -33,7 +47,6 @@ const FileInput = () => {
 
   return (
     <div className="flex flex-col items-center w-full">
-      {/* Contenedor cuadrado fijo */}
       <div
         className={`w-full max-w-xs h-80 border-2 border-dashed rounded-xl flex items-center justify-center cursor-pointer transition overflow-hidden flex-shrink-0 ${
           previewUrl
@@ -57,18 +70,12 @@ const FileInput = () => {
           />
         )}
 
-        {selectedFile && !previewUrl && (
-          <span className="text-sm text-cyan-600 mt-2 truncate">
-            {selectedFile.name}
-          </span>
-        )}
-
         <input
           type="file"
           ref={inputRef}
           onChange={handleFileChange}
           className="hidden"
-          accept=".jpg,.jpeg,.png,.csv,.pdf"
+          accept=".jpg,.jpeg,.png"
         />
       </div>
 
