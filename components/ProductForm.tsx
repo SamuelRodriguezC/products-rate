@@ -8,6 +8,8 @@ import StarRating from "./UIComponents/StarRating";
 import TargetSelect from "./UIComponents/TargetSelect";
 import RatingTable from "./UIComponents/RatingTable";
 import ProgressBar from "./UIComponents/ProgressBar";
+import Button from "./UIComponents/Button";
+import BackButton from "./UIComponents/StepButton";
 
 // Interfaces
 interface Answer {
@@ -178,19 +180,16 @@ const ProductForm = () => {
         {/* Botones de navegación */}
         <div className="flex justify-between mt-10">
           {step > 1 && (
-            <button type="button" onClick={handleBack} className="px-6 py-3 rounded-xl font-semibold text-lg bg-gray-700 text-white hover:bg-gray-600 transition-all">
-              ◀ Atrás
-            </button>
+            <>
+            <BackButton onClick={handleBack} text="Volver"/></>
           )}
           {step < 4 && (
-            <button type="button" onClick={handleNext} className="ml-auto px-6 py-3 rounded-xl font-semibold text-lg bg-cyan-500 text-white hover:bg-cyan-600 transition-all">
-              Siguiente ▶
-            </button>
+            <>
+            <BackButton onClick={handleNext} text="Siguiente"/></>
+            
           )}
           {step === 4 && (
-            <button type="submit" className="ml-auto px-8 py-3 rounded-xl font-semibold text-lg bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 text-white shadow-lg shadow-cyan-500/30 hover:shadow-purple-500/40 transition-all duration-300">
-              🚀 Finalizar
-            </button>
+             <Button type="submit" text="🚀 Finalizar" />
           )}
         </div>
       </motion.form>
