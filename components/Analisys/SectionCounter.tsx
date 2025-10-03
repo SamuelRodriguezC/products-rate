@@ -3,6 +3,7 @@
 import React from "react";
 import CountUp from "react-countup";
 import { motion } from "framer-motion";
+import CategoryFeedback from "./CategoryFeedback";
 
 interface SectionCounterProps {
   title: string;
@@ -28,6 +29,7 @@ const SectionCounter: React.FC<SectionCounterProps> = ({ title, value }) => {
         />
         /5
       </p>
+        <CategoryFeedback category="Visual" score={value} />
     </motion.div>
   );
 };
