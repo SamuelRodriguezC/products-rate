@@ -5,6 +5,7 @@ import GeneralDataCard from "@/components/Analisys/GeneralDataCard";
 import SectionCounters from "@/components/Analisys/SectionCounter";
 import SectionCounter from "@/components/Analisys/SectionCounter";
 import RadarChart from "@/components/Analisys/RadarChart";
+import ConclusionCard from "@/components/Analisys/ConclusionCard";
 
 interface SectionAnswers {
   [key: string]: {
@@ -179,14 +180,7 @@ const AnalysisPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Conclusión */}
-      <div className="bg-gray-800 p-4 rounded-lg mb-6 card-container">
-        <h2 className="text-lg font-bold text-cyan-400 mb-2">📌 Conclusión</h2>
-        <p className="text-xl">{scoreLabel}</p>
-        <p className="mt-2 text-gray-300">
-          Puntaje final: <span className="font-bold">{finalScore}%</span>
-        </p>
-      </div>
+    <ConclusionCard scoreLabel={scoreLabel} finalScore={finalScore} />
 
       {/* Botón descargar */}
       <div className="flex justify-end">
