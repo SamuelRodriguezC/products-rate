@@ -101,18 +101,35 @@ const ProductForm = () => {
   };
 
   return (
-    <motion.form
-      onSubmit={handleSubmit}
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="bg-gray-900/80 backdrop-blur-xl rounded-3xl p-10 shadow-[0_0_30px_rgba(34,211,238,0.3)] border border-cyan-500/30"
-    >
+    <>
+    <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6 }}
+    className="
+      relative 
+      border-2 border-cyan-400/50
+      p-[17px]   /* espacio para que se vea el borde */
+      rounded-3xl 
+      bg-gradient-to-r from-cyan-400/60 via-blue-500/60 to-teal-600/60 
+      shadow-[0_0_100px_10px_rgba(34,211,238,0.4)]
+    "
+  >
+  <motion.form
+    onSubmit={handleSubmit}
+    className="
+      bg-gray-900   /* ← aquí ya queda gris sin degradado */
+      backdrop-blur-xl 
+      rounded-3xl 
+      p-10
+      w-full 
+      h-full
+    "
+  >
       {/* Datos básicos */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         <motion.div
           className="col-span-2 flex h-full"
-          whileHover={{ scale: 1.02 }}
           transition={{ type: "spring", stiffness: 200 }}
         >
           <FileInput onFileSelect={(img) => setFormData({ ...formData, image: img })} />
@@ -152,6 +169,9 @@ const ProductForm = () => {
         </button>
       </motion.div>
     </motion.form>
+    </motion.div>
+    </>
+
   );
 };
 
