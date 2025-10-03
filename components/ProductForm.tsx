@@ -1,31 +1,28 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import FileInput from "./UIComponents/FileInput";
 import TextInput from "./UIComponents/TextInput";
 import StarRating from "./UIComponents/StarRating";
 import TargetSelect from "./UIComponents/TargetSelect";
 import RatingTable from "./UIComponents/RatingTable";
 
-// -------------------------------
-// Interfaces para tipado fuerte
-// -------------------------------
+// Interfaces
 interface Answer {
   text: string;
   value: number;
 }
-
 interface Section {
   title: string;
   answers: { [key: string]: Answer };
 }
-
 interface FormData {
   name: string;
   purpose: string;
   problem: string;
   rating: number;
-  image: string | null; // 👈 puede ser string (base64 o URL) o null
+  image: string | null;
   targets: string[];
   sections: {
     visual: Section;
@@ -34,7 +31,7 @@ interface FormData {
   };
 }
 
-// Preguntas de cada sección
+// Preguntas
 const VisualQuestions = [
   { id: "v1", text: "Generalización del problema" },
   { id: "v2", text: "Probabilidad de Brandear (Crear Marca)" },
@@ -45,20 +42,18 @@ const VisualQuestions = [
   { id: "v7", text: "Fácil uso e instalación" },
   { id: "v8", text: "Me apasiona el Nicho" },
 ];
-
 const TechnicalQuestions = [
   { id: "t1", text: "Dificultad de encontrar en mercado físico" },
   { id: "t2", text: "Actualizado (En su última versión)" },
   { id: "t3", text: "Se vende en tiendas online de otros países" },
   { id: "t4", text: "Valoración de clientes (Amazon, Aliexpress ...)" },
-  { id: "t5", text: "Cambio alcanzable luego de usar el producto (No es cambio exagerado)" },
+  { id: "t5", text: "Cambio alcanzable luego de usar el producto" },
   { id: "t6", text: "Competencia del mercado (1 mucha, 5 poca)" },
 ];
-
 const StrategicQuestions = [
   { id: "s1", text: "Se puede vender en bundle, es low ticket" },
   { id: "s2", text: "Costo de adquisición bajo (5 - 20 mil COP)" },
-  { id: "s3", text: "Se puede aplicar un angulo de venta diferente a la competencia" },
+  { id: "s3", text: "Se puede aplicar un angulo de venta diferente" },
   { id: "s4", text: "Público amplio" },
   { id: "s5", text: "Percepción de valor alta" },
   { id: "s6", text: "Grado de recurrencia (Se puede comprar más de una vez)" },
@@ -67,8 +62,6 @@ const StrategicQuestions = [
 
 const ProductForm = () => {
   const router = useRouter();
-
-  // Estado inicial tipado
   const [formData, setFormData] = useState<FormData>({
     name: "",
     purpose: "",
@@ -83,127 +76,82 @@ const ProductForm = () => {
     },
   });
 
-  // Manejo de cambios
-  const handleRatingChange = (value: number) => {
-    setFormData({ ...formData, rating: value });
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
+  // Handlers
+  const handleRatingChange = (value: number) => setFormData({ ...formData, rating: value });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
-
-  const handleRankingChange = (
-    section: "visual" | "technical" | "strategic",
-    key: string,
-    value: number,
-    questionText: string
-  ) => {
+  const handleRankingChange = (section: "visual" | "technical" | "strategic", key: string, value: number, questionText: string) => {
     setFormData({
       ...formData,
       sections: {
         ...formData.sections,
         [section]: {
           ...formData.sections[section],
-          answers: {
-            ...formData.sections[section].answers,
-            [key]: { text: questionText, value },
-          },
+          answers: { ...formData.sections[section].answers, [key]: { text: questionText, value } },
         },
       },
     });
   };
-
-  // Submit
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Guardar en sessionStorage
     sessionStorage.setItem("analysisData", JSON.stringify(formData));
-
-    // Redirigir a la página de análisis
     router.push("/analysis");
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-gray-950/70 rounded-2xl p-8">
+    <motion.form
+      onSubmit={handleSubmit}
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="bg-gray-900/80 backdrop-blur-xl rounded-3xl p-10 shadow-[0_0_30px_rgba(34,211,238,0.3)] border border-cyan-500/30"
+    >
       {/* Datos básicos */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="col-span-2 flex h-full">
-          <FileInput
-            onFileSelect={(img) => setFormData({ ...formData, image: img })}
-          />
-        </div>
-        <div className="col-span-2 flex flex-col gap-4">
-          <TextInput
-            name="name"
-            type="text"
-            label="Nombre del producto"
-            value={formData.name}
-            onChange={handleChange}
-          />
-          <TextInput
-            name="purpose"
-            type="text"
-            label="¿Para qué sirve?"
-            value={formData.purpose}
-            onChange={handleChange}
-          />
-          <TextInput
-            name="problem"
-            type="text"
-            label="¿Qué problema resuelve?"
-            value={formData.problem}
-            onChange={handleChange}
-          />
-          <TargetSelect
-            value={formData.targets}
-            onChange={(val: string[]) => setFormData({ ...formData, targets: val })}
-          />
-          <StarRating
-            label="Calificación promedio"
-            name="rating"
-            value={formData.rating}
-            onChange={handleRatingChange}
-          />
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <motion.div
+          className="col-span-2 flex h-full"
+          whileHover={{ scale: 1.02 }}
+          transition={{ type: "spring", stiffness: 200 }}
+        >
+          <FileInput onFileSelect={(img) => setFormData({ ...formData, image: img })} />
+        </motion.div>
+
+        <div className="col-span-2 flex flex-col gap-5">
+          <TextInput name="name" type="text" label="Nombre del producto" value={formData.name} onChange={handleChange} />
+          <TextInput name="purpose" type="text" label="¿Para qué sirve?" value={formData.purpose} onChange={handleChange} />
+          <TextInput name="problem" type="text" label="¿Qué problema resuelve?" value={formData.problem} onChange={handleChange} />
+          <TargetSelect value={formData.targets} onChange={(val: string[]) => setFormData({ ...formData, targets: val })} />
+          <StarRating label="Calificación promedio" name="rating" value={formData.rating} onChange={handleRatingChange} />
         </div>
       </div>
 
-      {/* Tablas reutilizables */}
-      <div className="space-y-6 mt-6">
-        <RatingTable
-          title={formData.sections.visual.title}
-          questions={VisualQuestions}
-          answers={formData.sections.visual.answers}
-          onChange={(key, value, text) => handleRankingChange("visual", key, value, text)}
-        />
-
-        <RatingTable
-          title={formData.sections.technical.title}
-          questions={TechnicalQuestions}
-          answers={formData.sections.technical.answers}
-          onChange={(key, value, text) => handleRankingChange("technical", key, value, text)}
-        />
-
-        <RatingTable
-          title={formData.sections.strategic.title}
-          questions={StrategicQuestions}
-          answers={formData.sections.strategic.answers}
-          onChange={(key, value, text) => handleRankingChange("strategic", key, value, text)}
-        />
+      {/* Tablas */}
+      <div className="space-y-8 mt-8">
+        <motion.div whileHover={{ scale: 1.01 }}>
+          <RatingTable title={formData.sections.visual.title} questions={VisualQuestions} answers={formData.sections.visual.answers} onChange={(key, value, text) => handleRankingChange("visual", key, value, text)} />
+        </motion.div>
+        <motion.div whileHover={{ scale: 1.01 }}>
+          <RatingTable title={formData.sections.technical.title} questions={TechnicalQuestions} answers={formData.sections.technical.answers} onChange={(key, value, text) => handleRankingChange("technical", key, value, text)} />
+        </motion.div>
+        <motion.div whileHover={{ scale: 1.01 }}>
+          <RatingTable title={formData.sections.strategic.title} questions={StrategicQuestions} answers={formData.sections.strategic.answers} onChange={(key, value, text) => handleRankingChange("strategic", key, value, text)} />
+        </motion.div>
       </div>
 
-      <div className="flex justify-between mt-8">
+      {/* Botón */}
+      <motion.div className="flex justify-end mt-10" whileHover={{ scale: 1.05 }}>
         <button
           type="submit"
-          className="px-6 py-2 rounded-lg bg-green-500 text-white hover:bg-green-600"
+          className="px-8 py-3 rounded-xl font-semibold text-lg bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 
+            text-white shadow-lg shadow-cyan-500/30 hover:shadow-purple-500/40 
+            transition-all duration-300"
         >
-          Finalizar
+          🚀 Finalizar
         </button>
-      </div>
-    </form>
+      </motion.div>
+    </motion.form>
   );
 };
 
