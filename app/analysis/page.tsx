@@ -60,77 +60,144 @@ const AnalysisPage: React.FC = () => {
 
   const scoreLabel =
     Number(finalScore) >= 80
-      ? "🟢 Producto altamente recomendable"
+      ? "Producto altamente recomendable"
       : Number(finalScore) >= 60
-      ? "🟡 Producto con potencial"
-      : "🔴 No recomendable";
+      ? "Producto con potencial"
+      : "No recomendable";
 
-  // Generar PDF
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
-
-    doc.setFontSize(16);
-    doc.text("📊 Análisis del producto", 10, 20);
-
-    // Datos generales
-    doc.setFontSize(12);
-    doc.text(`Nombre: ${data.name}`, 10, 40);
-    doc.text(`Finalidad: ${data.purpose}`, 10, 50);
-    doc.text(`Problema que resuelve: ${data.problem}`, 10, 60);
-    doc.text(`Targets: ${data.targets.join(", ")}`, 10, 70);
-    doc.text(`Calificación promedio: ${data.rating}`, 10, 80);
-
-    // Promedios por sección
-    doc.text("Promedios por sección:", 10, 100);
-    doc.text(`Visual: ${visualAvg.toFixed(1)}/5`, 20, 110);
-    doc.text(`Técnico: ${techAvg.toFixed(1)}/5`, 20, 120);
-    doc.text(`Estratégico: ${stratAvg.toFixed(1)}/5`, 20, 130);
-
-    let y = 150;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 15;
+    let y = 25;
     const lineHeight = 8;
 
-    // Función auxiliar para listar respuestas
-    const addSectionDetails = (title: string, answers: SectionAnswers) => {
-      doc.setFontSize(13);
-      doc.text(title, 10, y);
+    // --- Encabezado principal ---
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(26);
+    doc.text("Análisis del producto", pageWidth / 2, y, { align: "center" });
+    y += 12;
+
+    // Línea decorativa debajo del título
+    doc.setDrawColor(0, 150, 136); // teal/cyan
+    doc.setLineWidth(1.5);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 10;
+
+    /// --- Imagen del producto ---
+    if (data.image) {
+      const imgWidth = 70;
+      const imgHeight = 70;
+      const imgX = margin;
+      doc.addImage(data.image, "JPEG", imgX, y, imgWidth, imgHeight);
+      y += imgHeight; // solo subimos Y la altura de la imagen, sin +10
+    }
+
+    // --- Detalles generales debajo de la imagen ---
+    const textGap = 5; // pequeño espacio entre imagen y texto
+    y += textGap;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.text("Nombre:", margin, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${data.name}`, margin + 35, y);
+    y += lineHeight;
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Finalidad:", margin, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${data.purpose}`, margin + 35, y);
+    y += lineHeight;
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Problema:", margin, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${data.problem}`, margin + 35, y);
+    y += lineHeight;
+
+    // --- Targets ---
+    doc.setFont("helvetica", "bold");
+    doc.text("Público:", margin, y);
+    doc.setFont("helvetica", "normal");
+
+    // Ajustamos el texto al ancho disponible
+    const targetText = data.targets.join(", ");
+    const targetLines = doc.splitTextToSize(
+      targetText,
+      pageWidth - margin * 2 - 35
+    ); // 35 para la indentación
+    doc.text(targetLines, margin + 35, y);
+    y += targetLines.length * lineHeight;
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Calificación promedio:", margin, y);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${data.rating}`, margin + 50, y);
+    y += lineHeight + 5;
+
+    // --- Función para categorías con promedio ---
+    const addCategory = (title: string, answers: SectionAnswers) => {
+      // Calcular promedio de la sección
+      const values = Object.values(answers).map((a) => a.value);
+      const avg = values.length
+        ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1)
+        : "0";
+
+      // Título categoría con promedio
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.setTextColor(0, 150, 136);
+      doc.text(`${title.toUpperCase()} (Promedio: ${avg}/5)`, margin, y);
       y += lineHeight;
 
+      // Respuestas
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(11);
+      doc.setTextColor(0, 0, 0);
       Object.values(answers).forEach((ans) => {
-        const splitted = doc.splitTextToSize(
-          `${ans.text}: ${ans.value}/5`,
-          180
+        const lines = doc.splitTextToSize(
+          `• ${ans.text}: ${ans.value}/5`,
+          pageWidth - 2 * margin
         );
-        doc.text(splitted, 15, y);
-        y += splitted.length * lineHeight;
+        doc.text(lines, margin + 5, y);
+        y += lines.length * lineHeight;
 
         if (y > 270) {
           doc.addPage();
-          y = 20;
+          y = 25;
         }
       });
 
-      y += lineHeight;
+      // Línea separadora después de la categoría
+      y += 3;
+      doc.setDrawColor(200);
+      doc.setLineWidth(0.3);
+      doc.line(margin, y, pageWidth - margin, y);
+      y += 8;
     };
 
-    // Rankings detallados
-    addSectionDetails("📌 Detalle de Visual", data.sections.visual.answers);
-    addSectionDetails("📌 Detalle Técnico", data.sections.technical.answers);
-    addSectionDetails(
-      "📌 Detalle Estratégico",
-      data.sections.strategic.answers
-    );
+    addCategory("Análisis Visual", data.sections.visual.answers);
+    addCategory("Análisis Técnico", data.sections.technical.answers);
+    addCategory("Análisis Estratégico", data.sections.strategic.answers);
 
-    // Conclusión
-    doc.setFontSize(13);
-    doc.text("Conclusión:", 10, y);
+    // --- Conclusión ---
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(0, 150, 136);
+    doc.text("CONCLUSIÓN", margin, y);
     y += lineHeight;
-    doc.setFontSize(11);
-    doc.text(`${scoreLabel}`, 20, y);
-    y += lineHeight;
-    doc.text(`Puntaje final: ${finalScore}%`, 20, y);
 
-    doc.save("analisis_producto.pdf");
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`${scoreLabel}`, margin + 5, y);
+    y += lineHeight;
+    doc.text(`Puntaje final: ${finalScore}%`, margin + 5, y);
+
+    // Limpiar caracteres que no se pueden usar en un nombre de archivo
+    const safeName = data.name.replace(/[^a-z0-9]/gi, "_"); // reemplaza espacios y caracteres especiales
+    doc.save(`analisis_${safeName}.pdf`);
   };
 
   // Datos radar chart
@@ -173,19 +240,18 @@ const AnalysisPage: React.FC = () => {
 
           {/* Radar Chart debajo de los contadores */}
           <RadarChart
-              visualAvg={visualAvg}
-              techAvg={techAvg}
-              stratAvg={stratAvg}
-            />
-
+            visualAvg={visualAvg}
+            techAvg={techAvg}
+            stratAvg={stratAvg}
+          />
         </div>
       </div>
 
-    <ConclusionCard scoreLabel={scoreLabel} finalScore={finalScore} />
+      <ConclusionCard scoreLabel={scoreLabel} finalScore={finalScore} />
 
       {/* Botón descargar */}
       <div className="flex justify-end">
-        <ButtonDownload onClick={handleDownloadPDF} text="Descargar PDF"/>
+        <ButtonDownload onClick={handleDownloadPDF} text="Descargar PDF" />
       </div>
     </div>
   );
