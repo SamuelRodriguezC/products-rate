@@ -1,17 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import {
-  Radar,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  ResponsiveContainer,
-} from "recharts";
 import jsPDF from "jspdf";
 import GeneralDataCard from "@/components/Analisys/GeneralDataCard";
 import SectionCounters from "@/components/Analisys/SectionCounter";
 import SectionCounter from "@/components/Analisys/SectionCounter";
+import RadarChart from "@/components/Analisys/RadarChart";
 
 interface SectionAnswers {
   [key: string]: {
@@ -177,25 +170,12 @@ const AnalysisPage: React.FC = () => {
           </div>
 
           {/* Radar Chart debajo de los contadores */}
-          <div className="card-container p-4  mt-4">
-            <h2 className="text-lg font-bold mb-2 text-cyan-400">
-              📈 Radar de secciones
-            </h2>
-            <ResponsiveContainer width="100%" height={250}>
-              <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
-                <PolarGrid />
-                <PolarAngleAxis dataKey="subject" stroke="#38bdf8" />
-                <PolarRadiusAxis angle={30} domain={[0, 5]} />
-                <Radar
-                  name="Puntaje"
-                  dataKey="A"
-                  stroke="#38bdf8"
-                  fill="#38bdf8"
-                  fillOpacity={0.6}
-                />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
+          <RadarChart
+              visualAvg={visualAvg}
+              techAvg={techAvg}
+              stratAvg={stratAvg}
+            />
+
         </div>
       </div>
 
