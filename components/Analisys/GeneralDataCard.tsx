@@ -39,7 +39,7 @@ const GeneralDataCard: React.FC<GeneralDataCardProps> = ({
           <img
             src={image}
             alt="Imagen del producto"
-            className="w-full max-w-xs h-auto rounded-lg object-cover"
+            className="w-98 h-98 rounded-lg object-cover"
           />
         </motion.div>
       )}
