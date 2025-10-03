@@ -60,8 +60,32 @@ const StrategicQuestions = [
   { id: "s7", text: "Saturación (1 Mucha, 5 Poca)" },
 ];
 
+// Componente Paso 1
+interface Step1Props {
+  formData: FormData;
+  setFormData: React.Dispatch<React.SetStateAction<FormData>>;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
+  handleRatingChange: (value: number) => void;
+}
+const Step1: React.FC<Step1Props> = ({ formData, setFormData, handleChange, handleRatingChange }) => (
+  <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <motion.div className="col-span-2 flex h-full" transition={{ type: "spring", stiffness: 200 }}>
+      <FileInput onFileSelect={(img) => setFormData({ ...formData, image: img })} />
+    </motion.div>
+    <div className="col-span-2 flex flex-col gap-5">
+      <TextInput name="name" type="text" label="Nombre del producto" value={formData.name} onChange={handleChange} />
+      <TextInput name="purpose" type="text" label="¿Para qué sirve?" value={formData.purpose} onChange={handleChange} />
+      <TextInput name="problem" type="text" label="¿Qué problema resuelve?" value={formData.problem} onChange={handleChange} />
+      <TargetSelect value={formData.targets} onChange={(val: string[]) => setFormData({ ...formData, targets: val })} />
+      <StarRating label="Calificación promedio" name="rating" value={formData.rating} onChange={handleRatingChange} />
+    </div>
+  </div>
+);
+
 const ProductForm = () => {
   const router = useRouter();
+  const [step, setStep] = useState(1);
+  const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [formData, setFormData] = useState<FormData>({
     name: "",
     purpose: "",
@@ -94,84 +118,79 @@ const ProductForm = () => {
       },
     });
   };
+  const handleNext = () => {
+    setDirection("forward");
+    setStep((prev) => Math.min(prev + 1, 4));
+  };
+  const handleBack = () => {
+    setDirection("backward");
+    setStep((prev) => Math.max(prev - 1, 1));
+  };
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     sessionStorage.setItem("analysisData", JSON.stringify(formData));
     router.push("/analysis");
   };
 
+  // Animaciones según dirección
+  const variants = {
+    enter: (dir: "forward" | "backward") => ({
+      x: dir === "forward" ? 100 : -100,
+      opacity: 0,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+    },
+    exit: (dir: "forward" | "backward") => ({
+      x: dir === "forward" ? -100 : 100,
+      opacity: 0,
+    }),
+  };
+
   return (
-    <>
     <motion.div
-    initial={{ opacity: 0, y: 30 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.6 }}
-    className="
-      relative 
-      border-2 border-cyan-400/50
-      p-[17px]   /* espacio para que se vea el borde */
-      rounded-3xl 
-      bg-gradient-to-r from-cyan-400/60 via-blue-500/60 to-teal-600/60 
-      shadow-[0_0_100px_10px_rgba(34,211,238,0.4)]
-    "
-  >
-  <motion.form
-    onSubmit={handleSubmit}
-    className="
-      bg-gray-900   /* ← aquí ya queda gris sin degradado */
-      backdrop-blur-xl 
-      rounded-3xl 
-      p-10
-      w-full 
-      h-full
-    "
-  >
-      {/* Datos básicos */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="relative border-2 border-cyan-400/50 p-[17px] rounded-3xl bg-gradient-to-r from-cyan-400/60 via-blue-500/60 to-teal-600/60 shadow-[0_0_100px_10px_rgba(34,211,238,0.4)]"
+    >
+      <motion.form onSubmit={handleSubmit} className="bg-gray-900 backdrop-blur-xl rounded-3xl p-10 w-full h-full">
         <motion.div
-          className="col-span-2 flex h-full"
-          transition={{ type: "spring", stiffness: 200 }}
+          key={step}
+          custom={direction}
+          variants={variants}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
-          <FileInput onFileSelect={(img) => setFormData({ ...formData, image: img })} />
+          {step === 1 && <Step1 formData={formData} setFormData={setFormData} handleChange={handleChange} handleRatingChange={handleRatingChange} />}
+          {step === 2 && <RatingTable title={formData.sections.visual.title} questions={VisualQuestions} answers={formData.sections.visual.answers} onChange={(key, value, text) => handleRankingChange("visual", key, value, text)} />}
+          {step === 3 && <RatingTable title={formData.sections.technical.title} questions={TechnicalQuestions} answers={formData.sections.technical.answers} onChange={(key, value, text) => handleRankingChange("technical", key, value, text)} />}
+          {step === 4 && <RatingTable title={formData.sections.strategic.title} questions={StrategicQuestions} answers={formData.sections.strategic.answers} onChange={(key, value, text) => handleRankingChange("strategic", key, value, text)} />}
         </motion.div>
 
-        <div className="col-span-2 flex flex-col gap-5">
-          <TextInput name="name" type="text" label="Nombre del producto" value={formData.name} onChange={handleChange} />
-          <TextInput name="purpose" type="text" label="¿Para qué sirve?" value={formData.purpose} onChange={handleChange} />
-          <TextInput name="problem" type="text" label="¿Qué problema resuelve?" value={formData.problem} onChange={handleChange} />
-          <TargetSelect value={formData.targets} onChange={(val: string[]) => setFormData({ ...formData, targets: val })} />
-          <StarRating label="Calificación promedio" name="rating" value={formData.rating} onChange={handleRatingChange} />
+        {/* Botones de navegación */}
+        <div className="flex justify-between mt-10">
+          {step > 1 && (
+            <button type="button" onClick={handleBack} className="px-6 py-3 rounded-xl font-semibold text-lg bg-gray-700 text-white hover:bg-gray-600 transition-all">
+              ◀ Atrás
+            </button>
+          )}
+          {step < 4 && (
+            <button type="button" onClick={handleNext} className="ml-auto px-6 py-3 rounded-xl font-semibold text-lg bg-cyan-500 text-white hover:bg-cyan-600 transition-all">
+              Siguiente ▶
+            </button>
+          )}
+          {step === 4 && (
+            <button type="submit" className="ml-auto px-8 py-3 rounded-xl font-semibold text-lg bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 text-white shadow-lg shadow-cyan-500/30 hover:shadow-purple-500/40 transition-all duration-300">
+              🚀 Finalizar
+            </button>
+          )}
         </div>
-      </div>
-
-      {/* Tablas */}
-      <div className="space-y-8 mt-8">
-        <motion.div whileHover={{ scale: 1.01 }}>
-          <RatingTable title={formData.sections.visual.title} questions={VisualQuestions} answers={formData.sections.visual.answers} onChange={(key, value, text) => handleRankingChange("visual", key, value, text)} />
-        </motion.div>
-        <motion.div whileHover={{ scale: 1.01 }}>
-          <RatingTable title={formData.sections.technical.title} questions={TechnicalQuestions} answers={formData.sections.technical.answers} onChange={(key, value, text) => handleRankingChange("technical", key, value, text)} />
-        </motion.div>
-        <motion.div whileHover={{ scale: 1.01 }}>
-          <RatingTable title={formData.sections.strategic.title} questions={StrategicQuestions} answers={formData.sections.strategic.answers} onChange={(key, value, text) => handleRankingChange("strategic", key, value, text)} />
-        </motion.div>
-      </div>
-
-      {/* Botón */}
-      <motion.div className="flex justify-end mt-10" whileHover={{ scale: 1.05 }}>
-        <button
-          type="submit"
-          className="px-8 py-3 rounded-xl font-semibold text-lg bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 
-            text-white shadow-lg shadow-cyan-500/30 hover:shadow-purple-500/40 
-            transition-all duration-300"
-        >
-          🚀 Finalizar
-        </button>
-      </motion.div>
-    </motion.form>
+      </motion.form>
     </motion.div>
-    </>
-
   );
 };
 
