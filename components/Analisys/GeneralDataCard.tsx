@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { motion } from "framer-motion";
+import { Star } from "lucide-react";
 
 interface GeneralDataCardProps {
   name: string;
@@ -60,7 +61,7 @@ const GeneralDataCard: React.FC<GeneralDataCardProps> = ({
         {[
           { label: "Finalidad", value: purpose },
           { label: "Problema que resuelve", value: problem },
-          { label: "Targets", value: targets.join(", ") },
+          { label: "Público objetivo", value: targets.join(", ") },
         ].map((item, idx) => (
           <motion.div
             key={idx}
@@ -71,7 +72,7 @@ const GeneralDataCard: React.FC<GeneralDataCardProps> = ({
             }}
             transition={{ duration: 0.4 }}
           >
-            <p className="font-semibold">{item.label}:</p>
+            <p className="font-bold text-gray-400">{item.label}:</p>
             <p className="ml-2">{item.value}</p>
           </motion.div>
         ))}
@@ -88,8 +89,8 @@ const GeneralDataCard: React.FC<GeneralDataCardProps> = ({
           <p className="font-semibold">Calificación promedio:</p>
           <div className="ml-2 flex items-center">
             {Array.from({ length: rating }, (_, i) => (
-              <span key={i} className="text-yellow-400 text-lg">
-                ⭐
+              <span key={i} className=" text-lg">
+                <Star className="text-cyan-400 fill-cyan-400"/>
               </span>
             ))}
           </div>
