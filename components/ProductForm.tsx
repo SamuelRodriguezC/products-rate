@@ -140,21 +140,21 @@ const ProductForm = () => {
           <TextInput
             name="name"
             type="text"
-            label="Nombre"
+            label="Nombre del producto"
             value={formData.name}
             onChange={handleChange}
           />
           <TextInput
             name="purpose"
             type="text"
-            label="Finalidad"
+            label="¿Para qué sirve?"
             value={formData.purpose}
             onChange={handleChange}
           />
           <TextInput
             name="problem"
             type="text"
-            label="Problema"
+            label="¿Qué problema resuelve?"
             value={formData.problem}
             onChange={handleChange}
           />
