@@ -6,6 +6,7 @@ import SectionCounters from "@/components/Analisys/SectionCounter";
 import SectionCounter from "@/components/Analisys/SectionCounter";
 import RadarChart from "@/components/Analisys/RadarChart";
 import ConclusionCard from "@/components/Analisys/ConclusionCard";
+import ButtonDownload from "@/components/UIComponents/ButtonDownload";
 
 interface SectionAnswers {
   [key: string]: {
@@ -184,12 +185,7 @@ const AnalysisPage: React.FC = () => {
 
       {/* Botón descargar */}
       <div className="flex justify-end">
-        <button
-          onClick={handleDownloadPDF}
-          className="px-6 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white"
-        >
-          📥 Descargar PDF
-        </button>
+        <ButtonDownload onClick={handleDownloadPDF} text="Descargar PDF"/>
       </div>
     </div>
   );
