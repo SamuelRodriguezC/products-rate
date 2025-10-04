@@ -63,6 +63,8 @@ const StrategicQuestions = [
   { id: "s7", text: "Saturación (1 Mucha, 5 Poca)" },
 ];
 
+
+
 // Paso 1
 interface Step1Props {
   formData: FormData;
@@ -90,6 +92,7 @@ const Step1: React.FC<Step1Props> = ({ formData, setFormData, handleChange, hand
 );
 
 const ProductForm = () => {
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
@@ -174,14 +177,18 @@ const ProductForm = () => {
     setDirection("backward");
     setStep((prev) => Math.max(prev - 1, 1));
   };
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateStep()) {
-      sessionStorage.setItem("analysisData", JSON.stringify(formData));
-      router.push("/analysis");
+      setLoading(true); // empieza la animación de carga
+      // Simulamos un pequeño delay para mostrar el spinner (puedes quitarlo si es rápido)
+      setTimeout(() => {
+        sessionStorage.setItem("analysisData", JSON.stringify(formData));
+        router.push("/analysis");
+      }, 1000);
     }
   };
-
   const variants = {
     enter: (dir: "forward" | "backward") => ({
       x: dir === "forward" ? 100 : -100,
@@ -222,7 +229,7 @@ const ProductForm = () => {
         <div className="flex justify-between mt-10">
           {step > 1 && <BackButton onClick={handleBack} text="Volver" />}
           {step < 4 && <BackButton onClick={handleNext} text="Siguiente" />}
-          {step === 4 && <Button type="submit" text="🚀 Finalizar" />}
+{step === 4 && <Button type="submit" text="🚀 Finalizar" loading={loading} />}
         </div>
       </motion.form>
     </motion.div>

@@ -4,12 +4,14 @@ import React from 'react';
 interface ButtonProps {
   type: "button" | "submit" | "reset"; // Limitamos los tipos válidos
   text: string;
+    loading?: boolean;
 }
 
-const Button: React.FC<ButtonProps> = ({ type, text }) => {
+const Button: React.FC<ButtonProps> = ({ type, text, loading }) => {
   return (
     <button
       type={type}
+      disabled={loading}
       className="ml-auto px-8 py-1 rounded-xl font-semibold text-lg 
                  bg-gradient-to-r from-cyan-900/60 via-cyan-900/60 to-teal-900/60 
                  text-white shadow-lg shadow-cyan-500/30 hover:shadow-cyan-500/40 
@@ -26,7 +28,10 @@ const Button: React.FC<ButtonProps> = ({ type, text }) => {
                   before:blur-lg  after:absolute after:z-10 after:w-20 after:h-20 after:content[''] 
                    after:bg-cyan-500 after:right-8 after:top-3 after:rounded-full after:blur-lg cursor-pointer"
     >
-      {text}
+
+
+      {loading ? "Cargando...": text}
+
     </button>
   );
 };
