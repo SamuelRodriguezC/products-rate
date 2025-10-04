@@ -9,7 +9,7 @@ const TARGET_OPTIONS = [
   { value: "Adolescentes", description: "13 a 17 años" },
   { value: "Jóvenes", description: "18 a 25 años" },
   { value: "Adultos", description: "26 a 59 años" },
-  { value: "AdultosMayores", description: "60 años en adelante" },
+  { value: "Adultos Mayores", description: "60 años en adelante" },
 
   // 🔸 Género / Identidad
   { value: "Hombres", description: "Jóvenes y adultos masculinos" },
@@ -36,14 +36,8 @@ const TARGET_OPTIONS = [
   { value: "Gamers", description: "Jugadores de videojuegos" },
   { value: "Foodies", description: "Personas apasionadas por la gastronomía" },
   { value: "Viajeros", description: "Personas que disfrutan explorar lugares" },
-  { value: "SaludYBienestar", description: "Personas interesadas en alimentación, fitness, yoga" },
-  { value: "AmantesDelArteYCultura", description: "Personas que disfrutan cine, teatro, literatura" },
+  { value: "Salud Y Bienestar", description: "Personas interesadas en alimentación, fitness, yoga" },
 
-  // 🔸 Necesidades específicas
-  { value: "PersonasConDiscapacidad", description: "Público con necesidades especiales de accesibilidad" },
-  { value: "PersonasEnRehabilitacion", description: "Individuos en procesos médicos o terapéuticos" },
-  { value: "Embarazadas", description: "Mujeres en etapa de gestación" },
-  { value: "PersonasMayoresDependientes", description: "Adultos mayores que requieren cuidado" },
 ];
 
 

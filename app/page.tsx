@@ -13,7 +13,7 @@ export default function Home() {
             className="mb-4 text-3xl font-extrabold text-white md:text-5xl lg:text-6xl"
           >
             <span className="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400">
-              Enbudo de Productos
+              Embudo de Productos
             </span> Dropshipping.
           </h1>
 
